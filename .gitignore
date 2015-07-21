@@ -1,0 +1,9 @@
+#blacklist errything
+*
+#whitelist all dirs
+!*/
+#whitelist all cpp adn h files
+!*.cpp
+!*.h
+!*.txt
+!.gitignore
