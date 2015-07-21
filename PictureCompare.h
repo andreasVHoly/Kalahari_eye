@@ -16,8 +16,11 @@ public:
 	PictureCompare();
 	virtual ~PictureCompare();
 
-	void comparePictures(Picture picture1, Picture picture2);
+    Picture comparePictures(Picture picture1, Picture picture2);
 
+
+private:
+    int threshold;
 
 };
 
