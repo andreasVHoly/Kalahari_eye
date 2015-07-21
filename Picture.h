@@ -64,7 +64,7 @@ public:
 			pathName = rhs.pathName;
 			size = rhs.size;
 			vectorSize = rhs.vectorSize;
-			imageData = move(rhs.imageData);
+            imageData = std::move(rhs.imageData);
 		}
 
 		return *this;
