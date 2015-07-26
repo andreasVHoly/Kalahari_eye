@@ -27,48 +27,15 @@ public:
 
 
 
-	//copy constructor
-	Picture(const Picture & rhs){
-		name = rhs.name;
-		pathName = rhs.pathName;
-		size = rhs.size;
-		vectorSize = rhs.vectorSize;
-		copy(rhs.imageData.begin(), rhs.imageData.end(), back_inserter(imageData));
-	}
-	//move constructor
-	Picture(Picture && rhs):name(rhs.name), pathName(rhs.pathName), size(rhs.size), vectorSize(rhs.vectorSize), imageData(std::move(rhs.imageData)) {
-		rhs.name == "";
-		rhs.pathName = "";
-		rhs.size = 0;
-		rhs.vectorSize = 0;
-	}
+    //copy constructor
+    Picture(const Picture & rhs);
+    //move constructor
+    Picture(Picture && rhs);
 
-	//copy assignment opeerator
-	Picture & operator=(const Picture & rhs){
-		using namespace std;
-		if (this != &rhs){
-			name = rhs.name;
-			pathName = rhs.pathName;
-			size = rhs.size;
-			vectorSize = rhs.vectorSize;
-			copy(rhs.imageData.begin(), rhs.imageData.end(), back_inserter(imageData));
-		}
+    //copy assignment opeerator
+    Picture & operator=(const Picture & rhs);
 
-		return *this;
-	}
-
-	Picture & operator=(Picture && rhs){
-		using namespace std;
-		if (this != &rhs){
-			name = rhs.name;
-			pathName = rhs.pathName;
-			size = rhs.size;
-			vectorSize = rhs.vectorSize;
-            imageData = std::move(rhs.imageData);
-		}
-
-		return *this;
-	}
+    Picture & operator=(Picture && rhs);
 
 
 
@@ -82,10 +49,12 @@ public:
 	void renamePicture(std::string name);
 
 
-	//loaading adn saving
+    //loading and saving
 	Picture loadPicture(std::string pathname);
 
 	Picture loadPicture();
+
+    bool savePicture(std::string name);
 
 	std::vector<int> & getImageData();
 
