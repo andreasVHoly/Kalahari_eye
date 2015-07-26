@@ -17,17 +17,21 @@ namespace andreasvh {
         pathName = rhs.pathName;
         size = rhs.size;
         vectorSize = rhs.vectorSize;
+        width = rhs.width;
+        height = rhs.height;
         copy(rhs.imageData.begin(), rhs.imageData.end(), back_inserter(imageData));
     }
     //move constructor
-    Picture::Picture(Picture && rhs):name(rhs.name), pathName(rhs.pathName), size(rhs.size), vectorSize(rhs.vectorSize), imageData(std::move(rhs.imageData)) {
+    Picture::Picture(Picture && rhs):name(rhs.name), pathName(rhs.pathName), size(rhs.size), vectorSize(rhs.vectorSize), imageData(std::move(rhs.imageData)), width(rhs.width),height(rhs.height) {
         rhs.name == "";
         rhs.pathName = "";
         rhs.size = 0;
         rhs.vectorSize = 0;
+        rhs.width = 0;
+        rhs.height = 0;
     }
 
-    //copy assignment opeerator
+    //copy assignment operator
     Picture & Picture::operator=(const Picture & rhs){
         using namespace std;
         if (this != &rhs){
@@ -35,12 +39,14 @@ namespace andreasvh {
             pathName = rhs.pathName;
             size = rhs.size;
             vectorSize = rhs.vectorSize;
+            width = rhs.width;
+			height = rhs.height;
             copy(rhs.imageData.begin(), rhs.imageData.end(), back_inserter(imageData));
         }
 
         return *this;
     }
-
+    //move assignment operator
     Picture & Picture::operator=(Picture && rhs){
         using namespace std;
         if (this != &rhs){
@@ -48,7 +54,15 @@ namespace andreasvh {
             pathName = rhs.pathName;
             size = rhs.size;
             vectorSize = rhs.vectorSize;
+            width = rhs.width;
+           	height = rhs.height;
             imageData = std::move(rhs.imageData);
+            rhs.name == "";
+            rhs.pathName = "";
+            rhs.size = 0;
+            rhs.vectorSize = 0;
+            rhs.width = 0;
+            rhs.height = 0;
         }
 
         return *this;
@@ -79,7 +93,7 @@ namespace andreasvh {
 
 
 
-	Picture Picture::loadPicture(){
+	void Picture::loadPicture(){
 		if (pathName != ""){
 			return loadPicture(pathName);
 		}
@@ -92,7 +106,7 @@ namespace andreasvh {
 
 
     //load method which loads in a file provided the file name is true
-    Picture Picture::loadPicture(std::string fileName){
+    void Picture::loadPicture(std::string fileName){
         using namespace std;
         ifstream in;
         //open the file
@@ -131,25 +145,29 @@ namespace andreasvh {
         }
         //we process the binary data
         //we make a temp char array
+        cout << "importing picture with width " << width << " and height " << height << endl;
+
+
+
         char * array = new char[height*width];
         //we read the data into a char array
         in.read(array, height*width);
         //we convert the char array into a unsigned char array
         unsigned char * array2 = reinterpret_cast<unsigned char*>(array);
         //we make space for the data
-        data.reset(new unsigned char[width*height]);
-        //we assign the data
-        data.reset(array2);
+        for (int i = 0; i < width*height; i++){
+        	imageData.push_back(array2[i]);
+        }
         //we close our file
         in.close();
         cout << "loaded image " << fileName << endl;
-        return *this;
+        //return *this;
     }
 
     /**
      * saves and image to the specified image name
      */
-    void Picture::savePicture(std::string fileName){
+    bool Picture::savePicture(std::string fileName){
         using namespace std;
 
         ofstream out;
@@ -161,11 +179,19 @@ namespace andreasvh {
         out << width << " " << height << "\n";
         out << "255\n";
         //we write the block of binary data after we convert it
-        char * array = reinterpret_cast<char*>(data.get());
+        cout << "writing picture with width " << width << " and height " << height << endl;
+        char * array = new char[height*width];
+        for (int i = 0; i < width*height; i++){
+			array[i] = imageData[i];
+		}
+
+
+
         out.write(array, width*height);
         //we close the file
         out.close();
         cout << "saved image " << fileName << endl;
+        return true;
     }
 
 

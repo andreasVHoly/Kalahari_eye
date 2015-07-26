@@ -12,18 +12,23 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <utility>
 
 
 namespace andreasvh {
 
 class Picture {
 public:
-	Picture():pathName(""){}
-	Picture(std::string pathname):pathName(pathname){}
+	Picture():pathName(""),size(0), vectorSize(0), width(0), height(0){}
+	Picture(std::string pathname):pathName(pathname),size(0), vectorSize(0), width(0), height(0){}
 
 
-	virtual ~Picture();
+	~Picture(){
+		imageData.clear();
+	}
 
 
 
@@ -50,16 +55,26 @@ public:
 
 
     //loading and saving
-	Picture loadPicture(std::string pathname);
+	void loadPicture(std::string pathname);
 
-	Picture loadPicture();
+	void loadPicture();
 
     bool savePicture(std::string name);
 
 	std::vector<int> & getImageData();
 
 
+	int getWidth(){
+		return width;
+	}
 
+	int getHeight(){
+		return height;
+	}
+
+	int getSize(){
+		return width*height;
+	}
 
 
 
@@ -68,6 +83,7 @@ private:
 	std::vector<int> imageData;
 	float size;//size in mb
 	int vectorSize;//vector size
+	int width,height;
 
 
 

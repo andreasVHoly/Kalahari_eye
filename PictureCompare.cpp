@@ -25,22 +25,27 @@ namespace andreasvh {
 
         Picture newPic;
         newPic = picture2;
+        newPic.getImageData().clear();
+        newPic.getImageData().reserve(newPic.getSize());
         //we compare the 2 picture values and then return one with black marked where it was shot
 
         std::vector<int>::iterator start3 = newPic.getImageData().begin();
 
 
 
-        //copying over any old bulet holes
+        //copying over any old bullet holes
         while(start1 != end1){
 
             int diff = std::abs(*start1 - *start2);
-            if (*start1 == 0){//assuming this is black?
+
+            if (diff > threshold){//hopefully this means a extreme change in colour meaning we have a shot here
+				std::cout << "found pixel" << std::endl;
+				*start3 = 150;//assuming 0 is black
+			}
+            else if (*start1 == 0){//assuming this is black?
                 *start3 = 0;
             }
-            else if (diff > threshold){//hopefully this means a extreme change in colour meaning we have a shot here
-                *start3 = 0;//assuming 0 is black
-            }
+
             else{
                 *start3 = *start1;
             }

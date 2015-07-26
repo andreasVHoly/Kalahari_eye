@@ -13,8 +13,10 @@ namespace andreasvh {
 
 class PictureCompare {
 public:
-	PictureCompare();
-	virtual ~PictureCompare();
+	PictureCompare(int value):threshold(value){}
+	~PictureCompare(){
+		threshold = 0;
+	}
 
     Picture comparePictures(Picture picture1, Picture picture2);
 

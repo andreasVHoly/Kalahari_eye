@@ -14,8 +14,13 @@ namespace andreasvh {
 
 class PictureHandler {
 public:
-	PictureHandler();
-	virtual ~PictureHandler();
+	PictureHandler():currentPicture(0), pictureAmount(0){}
+
+
+	~PictureHandler(){
+		pictures.clear();
+
+	}
 
 	void addPicture(Picture pic);
 
