@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtWidgets>
 
 namespace Ui {
 class MainWindow;
@@ -19,6 +20,13 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QWidget * mainWidget;
+    QWidget * leftWidget;
+    QWidget * rightWidget;
+    QGridLayout * gridLayout;
+    QGridLayout * imagePanel;
+    QGridLayout * mainPanel;
+
 };
 
 #endif // MAINWINDOW_H
