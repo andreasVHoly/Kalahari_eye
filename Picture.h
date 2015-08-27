@@ -35,12 +35,12 @@ public:
     //copy constructor
     Picture(const Picture & rhs);
     //move constructor
-    Picture(Picture && rhs);
+    //Picture(Picture && rhs);
 
     //copy assignment opeerator
     Picture & operator=(const Picture & rhs);
 
-    Picture & operator=(Picture && rhs);
+    //Picture & operator=(Picture && rhs);
 
 
 

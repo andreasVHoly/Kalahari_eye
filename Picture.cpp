@@ -12,7 +12,7 @@ namespace andreasvh {
 
 
     //copy constructor
-    Picture::Picture(const Picture & rhs){
+    /*Picture::Picture(const Picture & rhs){
         name = rhs.name;
         pathName = rhs.pathName;
         size = rhs.size;
@@ -32,7 +32,7 @@ namespace andreasvh {
     }
 
     //copy assignment operator
-    Picture & Picture::operator=(const Picture & rhs){
+    /*Picture & Picture::operator=(const Picture & rhs){
         using namespace std;
         if (this != &rhs){
             name = rhs.name;
@@ -47,7 +47,7 @@ namespace andreasvh {
         return *this;
     }
     //move assignment operator
-    Picture & Picture::operator=(Picture && rhs){
+   /* Picture & Picture::operator=(Picture && rhs){
         using namespace std;
         if (this != &rhs){
             name = rhs.name;
@@ -66,12 +66,12 @@ namespace andreasvh {
         }
 
         return *this;
-    }
+    }*/
 
 
 
 
-
+/*
 
 	Picture Picture::getPicture(){
 		return *this;
@@ -162,12 +162,12 @@ namespace andreasvh {
         in.close();
         cout << "loaded image " << fileName << endl;
         //return *this;
-    }
+    }*/
 
     /**
      * saves and image to the specified image name
      */
-    bool Picture::savePicture(std::string fileName){
+  /*  bool Picture::savePicture(std::string fileName){
         using namespace std;
 
         ofstream out;
@@ -195,5 +195,5 @@ namespace andreasvh {
     }
 
 
-
+*/
 } /* namespace VHLAND002 */

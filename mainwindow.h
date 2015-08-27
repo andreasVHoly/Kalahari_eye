@@ -1,4 +1,4 @@
-/*#ifndef MAINWINDOW_H
+#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -14,10 +14,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void setUpLayout();
+    void addInButtons();
 
 private:
     Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H
-*/
+
