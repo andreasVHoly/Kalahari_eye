@@ -14,27 +14,26 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     ///BUTTONS
+    addInButtons();
 
-    QPushButton * liveFeed = new QPushButton("Live Feed");
-    QPushButton * shootMode = new QPushButton("Shooting Mode");
-    QPushButton * nextShot = new QPushButton("Show Next Shot");
     QPixmap currentImage("c:\\Users\\SMNM\\Pictures\\Default\\orca.jpg");
-    QLabel * imageLabel2 = new QLabel();
-    imageLabel2->setPixmap(currentImage);
+    mainImage = new QLabel();
+    mainImage->setPixmap(currentImage);
 
 
-    mainPanel->addWidget(liveFeed,0,0);
-    mainPanel->addWidget(shootMode,0,1);
-    mainPanel->addWidget(imageLabel2,1,0,1,2);
-    mainPanel->addWidget(nextShot,2,0,1,2);
+    mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+
+
 
 
     ///PICTURES
-    ///
-    QPixmap image1("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-    QLabel * imageLabel = new QLabel();
-    imageLabel->setPixmap(image1);
-    imagePanel->addWidget(imageLabel);
+
+    addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
+    noOfImages++;
+    addImage("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
+    noOfImages++;
+    addImage("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    noOfImages++;
 
     rightWidget->setLayout(imagePanel);
     leftWidget->setLayout(mainPanel);
@@ -59,6 +58,38 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 void MainWindow::setUpLayout(){
 
 }
+
+void MainWindow::addInButtons(){
+    QPushButton * liveFeed = new QPushButton("Live Feed");
+    QPushButton * shootMode = new QPushButton("Shooting Mode");
+    QPushButton * nextShot = new QPushButton("Show Next Shot");
+
+
+
+    mainPanel->addWidget(liveFeed,0,0);
+    mainPanel->addWidget(shootMode,0,1);
+    mainPanel->addWidget(nextShot,2,0,1,2);
+}
+
+void MainWindow::addImage(std::string path){
+    QPixmap image(path.c_str());
+    QLabel * imageLabel = new QLabel();
+    imageLabel->setPixmap(image);
+    imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    images.push_back(imageLabel);
+}
+
+void MainWindow::removeImage(std::string path){
+
+    for (int i = 0; i < images.size(); i++){
+
+    }
+}
+
+void MainWindow::setImageAmount(int size){
+    noOfImages = size;
+}
+
 
 MainWindow::~MainWindow()
 {
