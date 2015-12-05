@@ -24,10 +24,10 @@ namespace andreasvh {
         //TODO could use an STL alg here?
         //maybe also just use for loop, that way we have a counter and can easily access
         while(start != end){
-            if (*start.getName() == name){
+            //if (*start.getName() == name){
                 //we delete the image
-                return true;
-            }
+              //  return true;
+           // }
             start++;
         }
 
