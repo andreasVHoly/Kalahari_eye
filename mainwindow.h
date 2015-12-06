@@ -1,12 +1,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include <QtWidgets>
 #include <string>
 #include <vector>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include "Cameralink.h"
+#include <iostream>
+
 
 namespace Ui {
+
 class MainWindow;
 }
 
@@ -34,6 +39,8 @@ private:
     std::vector<QLabel*> images;
     QLabel * mainImage;
     int noOfImages;
+    andreasvh::CameraLink * camera;
+
 
 };
 
