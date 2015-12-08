@@ -5,8 +5,10 @@
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow){
     ui->setupUi(this);
 
+    images.clear();
+   // images.reserve(3);
     currentState = SystemState::mode_novid;
-
+    noOfImages = 0;
     //widgets
     mainWidget = new QWidget(this);
     rightWidget = new QWidget(mainWidget);
@@ -51,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     // CameraLink(std::string un, std::string p, int IPStart, int IPEnd, std::string port)
-    camera = new andreasvh::CameraLink("admin", "1234", 100, 150, "8080");
+    camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
     /*camera.setUsername("admin");
     camera.setPassword("1234");
     camera.setStartIP(100);
@@ -92,18 +94,19 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
 
-//QPixmap::fromImage(QImage((unsigned char*) mat.data, mat.cols, mat.rows, QImage::Format_RGB888).rgbswapped());
-
-
-
-
 void MainWindow::addInButtons(){
+
+    //assign clicking and pressing actions to nessesary slots
     liveFeed = new QPushButton("Live Feed");
-    connect(liveFeed, SIGNAL(released()), this, SLOT(on_LiveFeedBtnPress()));
+    connect(liveFeed, SIGNAL(clicked()), this, SLOT(on_LiveFeedBtnPress()));
+    connect(liveFeed, SIGNAL(pressed()), this, SLOT(on_LiveFeedBtnPress()));
     shootMode = new QPushButton("Shooting Mode");
-    connect(shootMode, SIGNAL(released()), this, SLOT(on_ShootingBtnPress()));
+    connect(shootMode, SIGNAL(clicked()), this, SLOT(on_ShootingBtnPress()));
+    connect(shootMode, SIGNAL(pressed()), this, SLOT(on_ShootingBtnPress()));
     nextShot = new QPushButton("Show Next Shot");
-    connect(nextShot, SIGNAL(released()), this, SLOT(on_ShowNextShotBtnPress()));
+    connect(nextShot, SIGNAL(clicked()), this, SLOT(on_ShowNextShotBtnPress()));
+    connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
+
 
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
@@ -112,11 +115,18 @@ void MainWindow::addInButtons(){
 
 
 void MainWindow::addImageToPanel(QImage image){
+    std::cout << "start of method" << std::endl;
     noOfImages++;
+    std::cout << noOfImages << std::endl;
     QLabel * imageLabel = new QLabel();
     imageLabel->setPixmap(QPixmap::fromImage(image));
     imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+
+    if (images.empty()){
+        images.reserve(noOfImages);
+    }
     images.push_back(imageLabel);
+    std::cout << "end of method" << std::endl;
 }
 
 
@@ -132,21 +142,20 @@ void MainWindow::addImageFromDrive(std::string path){
 
 void MainWindow::updateFeed(){
     //update the main feed
-    //std::cout << "test 3 passed" << std::endl;
     //simple video update
     videocap.read(matOriginal);
     //if nothing is coming through
     if (matOriginal.empty()){
         return;
     }
-   // std::cout << "test 4 passed" << std::endl;
 
-    QPixmap currentImage = QPixmap::fromImage(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888).rgbSwapped());
-   // std::cout << "test 5 passed" << std::endl;
-    mainImage->setPixmap(currentImage);
-    //std::cout << "test 6 passed" << std::endl;
+
+    qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+
+    mainImage->setPixmap(QPixmap::fromImage(qImgOriginal.rgbSwapped()));
+
     mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
-    //std::cout << "test 7 passed" << std::endl;
+
 }
 
 
@@ -156,12 +165,22 @@ void MainWindow::on_ShowNextShotBtnPress(){
 
 void MainWindow::on_ShootingBtnPress(){
 //handle shooting button being pressed
+    //already in shooting mode
+    if (currentState == 0){
+        return;
+    }
     currentState = SystemState::mode_shooting;
     liveFeedTimer->stop();
+    std::cout << "shooting mode button pressed" << std::endl;
+    addImageToPanel(qImgOriginal);
+    std::cout << "shooting mode button pressed2" << std::endl;
 }
 
 void MainWindow::on_LiveFeedBtnPress(){
 //handle live feed button being pressed
+    if (currentState == 1){
+        return;
+    }
     currentState = SystemState::mode_live;
     //start the timer again
     liveFeedTimer->start(20);

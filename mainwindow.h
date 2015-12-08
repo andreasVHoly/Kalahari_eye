@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
 public:
     //state enum
     enum SystemState {
-        mode_shooting,
+        mode_shooting = 0,
         mode_live,
         mode_novid
     };
@@ -51,8 +51,8 @@ private:
     andreasvh::CameraLink * camera;
 
     //qimages
-    QImage * mainImageOriginal;
-    QImage * mainImageEdited;
+    QImage qImgOriginal;
+    QImage qImgEdited;
     std::vector<QLabel*> images;
     QLabel * mainImage;
     //mats

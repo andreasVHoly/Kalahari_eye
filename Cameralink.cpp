@@ -5,13 +5,15 @@ namespace andreasvh{
 
 
 
-
+CameraLink::CameraLink(){
+    setDefaultValues();
+}
 
 
 
 //resetting values to their default as in the beggining of the project
 void CameraLink::setDefaultValues(){
-    IPStart = 101;
+    IPStart = 100;
     IPEnd = 150;
     username = "admin";
     password = "1234";
