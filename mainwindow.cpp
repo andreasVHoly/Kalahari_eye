@@ -8,17 +8,16 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     mainWidget = new QWidget(this);
     rightWidget = new QWidget(mainWidget);
     leftWidget = new QWidget(mainWidget);
-
-    gridLayout = new QGridLayout(mainWidget);
+    mainLayout = new QGridLayout(mainWidget);
     imagePanel = new QGridLayout(rightWidget);
     mainPanel = new QGridLayout(leftWidget);
-
+    mainImage = new QLabel();
 
     ///BUTTONS
     addInButtons();
 
     /*QPixmap currentImage("c:\\Users\\SMNM\\Pictures\\Default\\pic.jpg") = ;
-    mainImage = new QLabel();
+
 
 
     mainImage->setPixmap(currentImage);
@@ -29,20 +28,18 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
     ///PICTURES
 
-    addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-    noOfImages++;
-    addImage("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
-    noOfImages++;
-    addImage("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
-    noOfImages++;
+    //addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
+   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
+   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+
 
     rightWidget->setLayout(imagePanel);
     leftWidget->setLayout(mainPanel);
 
-    gridLayout->addWidget(leftWidget,0,0);
-    gridLayout->addWidget(rightWidget,0,1);
+    mainLayout->addWidget(leftWidget,0,0);
+    mainLayout->addWidget(rightWidget,0,1);
 
-    mainWidget->setLayout(gridLayout);
+    mainWidget->setLayout(mainLayout);
 
 
     //imageView->setLayout(imagePanel);
@@ -67,21 +64,24 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
     }
 
+    //std::cout << "test 1 passed" << std::endl;
 
-    cv::VideoCapture videocap;
-    cv::Mat outimage;
+
 
     if(!videocap.open(camera->getConnectionAddress())) {
         std::cout << "Error opening video stream for " << std::endl;
+        //TODO need to display this on the screen that there is no video feed & show default black screen
+        throw EXCEPTION_ILLEGAL_INSTRUCTION;
     }
 
-
-
-
+    liveFeedTimer = new QTimer(this);
+    connect(liveFeedTimer, SIGNAL(timeout()), this, SLOT(updateFeed()));
+    liveFeedTimer->start(20);
+    //std::cout << "test 2 passed" << std::endl;
 
 
    // for(;;) {
-         if(!videocap.read(outimage)) {
+       /*  if(!videocap.read(outimage)) {
              std::cout << "No frame" << std::endl;
              cv::waitKey();
          }
@@ -91,10 +91,10 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
          mainImage->setPixmap(currentImage);
-         mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+
          //cv::imshow("Output Window", image);
          //if(cv::waitKey(1) >= 0) break;
-    // }
+    // }*/
 
 }
 
@@ -104,23 +104,30 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 //QPixmap::fromImage(QImage((unsigned char*) mat.data, mat.cols, mat.rows, QImage::Format_RGB888).rgbswapped());
 
 
-void MainWindow::setUpLayout(){
 
-}
 
 void MainWindow::addInButtons(){
-    QPushButton * liveFeed = new QPushButton("Live Feed");
-    QPushButton * shootMode = new QPushButton("Shooting Mode");
-    QPushButton * nextShot = new QPushButton("Show Next Shot");
-
-
+    liveFeed = new QPushButton("Live Feed");
+    shootMode = new QPushButton("Shooting Mode");
+    nextShot = new QPushButton("Show Next Shot");
 
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
     mainPanel->addWidget(nextShot,2,0,1,2);
 }
 
-void MainWindow::addImage(std::string path){
+
+void MainWindow::addImageToPanel(QImage image){
+    noOfImages++;
+    QLabel * imageLabel = new QLabel();
+    imageLabel->setPixmap(QPixmap::fromImage(image));
+    imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    images.push_back(imageLabel);
+}
+
+
+void MainWindow::addImageFromDrive(std::string path){
+    noOfImages++;
     QPixmap image(path.c_str());
     QLabel * imageLabel = new QLabel();
     imageLabel->setPixmap(image);
@@ -128,11 +135,46 @@ void MainWindow::addImage(std::string path){
     images.push_back(imageLabel);
 }
 
-void MainWindow::removeImage(std::string path){
 
+void MainWindow::updateFeed(){
+    //update the main feed
+    //std::cout << "test 3 passed" << std::endl;
+    //simple video update
+    videocap.read(matOriginal);
+    //if nothing is coming through
+    if (matOriginal.empty()){
+        return;
+    }
+   // std::cout << "test 4 passed" << std::endl;
+
+    QPixmap currentImage = QPixmap::fromImage(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888).rgbSwapped());
+   // std::cout << "test 5 passed" << std::endl;
+    mainImage->setPixmap(currentImage);
+    //std::cout << "test 6 passed" << std::endl;
+    mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+    //std::cout << "test 7 passed" << std::endl;
+}
+
+
+void MainWindow::on_ShowNextShotBtnPress(){
+//handle show next button being pressed
+}
+
+void MainWindow::on_ShootingBtnPress(){
+//handle shooting button being pressed
+}
+
+void MainWindow::on_LiveFeedBtnPress(){
+//handle live feed button being pressed
+}
+
+
+
+void MainWindow::removeImage(std::string path){
+/*
     for (int i = 0; i < images.size(); i++){
 
-    }
+    }*/
 }
 
 void MainWindow::setImageAmount(int size){

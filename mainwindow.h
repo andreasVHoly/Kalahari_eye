@@ -24,7 +24,8 @@ public:
     ~MainWindow();
     void setUpLayout();
     void addInButtons();
-    void addImage(std::string path);
+    void addImageFromDrive(std::string path);
+    void addImageToPanel(QImage image);
     void removeImage(std::string path);
     void setImageAmount(int size);
 
@@ -33,13 +34,43 @@ private:
     QWidget * mainWidget;
     QWidget * leftWidget;
     QWidget * rightWidget;
-    QGridLayout * gridLayout;
+    QGridLayout * mainLayout;
     QGridLayout * imagePanel;
     QGridLayout * mainPanel;
-    std::vector<QLabel*> images;
-    QLabel * mainImage;
+    //std::vector<QLabel*> images;
+
     int noOfImages;
     andreasvh::CameraLink * camera;
+
+    //qimages
+    QImage * mainImageOriginal;
+    QImage * mainImageEdited;
+    std::vector<QLabel*> images;
+    QLabel * mainImage;
+    //mats
+    cv::Mat matOriginal;
+    cv::Mat matEdited;
+
+    //video capture
+    cv::VideoCapture videocap;
+
+
+    //BUTTONS
+    QPushButton * liveFeed ;
+    QPushButton * shootMode;
+    QPushButton * nextShot;
+
+
+    //Timer
+    QTimer * liveFeedTimer;
+
+public slots:
+    void updateFeed();
+
+private slots:
+    void on_LiveFeedBtnPress();
+    void on_ShootingBtnPress();
+    void on_ShowNextShotBtnPress();
 
 
 };
