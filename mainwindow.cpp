@@ -115,18 +115,18 @@ void MainWindow::addInButtons(){
 
 
 void MainWindow::addImageToPanel(QImage image){
-    std::cout << "start of method" << std::endl;
+   // std::cout << "start of method" << std::endl;
     noOfImages++;
-    std::cout << noOfImages << std::endl;
+
     QLabel * imageLabel = new QLabel();
-    imageLabel->setPixmap(QPixmap::fromImage(image));
+    imageLabel->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
     imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
 
     if (images.empty()){
         images.reserve(noOfImages);
     }
     images.push_back(imageLabel);
-    std::cout << "end of method" << std::endl;
+   // std::cout << "end of method" << std::endl;
 }
 
 
@@ -171,9 +171,9 @@ void MainWindow::on_ShootingBtnPress(){
     }
     currentState = SystemState::mode_shooting;
     liveFeedTimer->stop();
-    std::cout << "shooting mode button pressed" << std::endl;
+    //std::cout << "shooting mode button pressed" << std::endl;
     addImageToPanel(qImgOriginal);
-    std::cout << "shooting mode button pressed2" << std::endl;
+    //std::cout << "shooting mode button pressed2" << std::endl;
 }
 
 void MainWindow::on_LiveFeedBtnPress(){
