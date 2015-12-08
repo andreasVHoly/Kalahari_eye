@@ -20,6 +20,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    //state enum
+    enum SystemState {
+        mode_shooting,
+        mode_live,
+        mode_novid
+    };
+
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setUpLayout();
@@ -63,6 +71,9 @@ private:
 
     //Timer
     QTimer * liveFeedTimer;
+
+    //state
+    SystemState currentState;
 
 public slots:
     void updateFeed();

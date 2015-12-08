@@ -5,6 +5,9 @@
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow){
     ui->setupUi(this);
 
+    currentState = SystemState::mode_novid;
+
+    //widgets
     mainWidget = new QWidget(this);
     rightWidget = new QWidget(mainWidget);
     leftWidget = new QWidget(mainWidget);
@@ -61,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     }
     else{
         std::cout << "Connection to camera successful" << std::endl;
+        currentState = SystemState::mode_live;
 
     }
 
@@ -71,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     if(!videocap.open(camera->getConnectionAddress())) {
         std::cout << "Error opening video stream for " << std::endl;
         //TODO need to display this on the screen that there is no video feed & show default black screen
+        currentState = SystemState::mode_novid;
         throw EXCEPTION_ILLEGAL_INSTRUCTION;
     }
 
@@ -80,21 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     //std::cout << "test 2 passed" << std::endl;
 
 
-   // for(;;) {
-       /*  if(!videocap.read(outimage)) {
-             std::cout << "No frame" << std::endl;
-             cv::waitKey();
-         }
 
-         QPixmap currentImage = QPixmap::fromImage(QImage((unsigned char*) outimage.data, outimage.cols, outimage.rows, QImage::Format_RGB888).rgbSwapped());
-         mainImage = new QLabel();
-
-
-         mainImage->setPixmap(currentImage);
-
-         //cv::imshow("Output Window", image);
-         //if(cv::waitKey(1) >= 0) break;
-    // }*/
 
 }
 
@@ -108,8 +99,11 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 void MainWindow::addInButtons(){
     liveFeed = new QPushButton("Live Feed");
+    connect(liveFeed, SIGNAL(released()), this, SLOT(on_LiveFeedBtnPress()));
     shootMode = new QPushButton("Shooting Mode");
+    connect(shootMode, SIGNAL(released()), this, SLOT(on_ShootingBtnPress()));
     nextShot = new QPushButton("Show Next Shot");
+    connect(nextShot, SIGNAL(released()), this, SLOT(on_ShowNextShotBtnPress()));
 
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
@@ -162,10 +156,15 @@ void MainWindow::on_ShowNextShotBtnPress(){
 
 void MainWindow::on_ShootingBtnPress(){
 //handle shooting button being pressed
+    currentState = SystemState::mode_shooting;
+    liveFeedTimer->stop();
 }
 
 void MainWindow::on_LiveFeedBtnPress(){
 //handle live feed button being pressed
+    currentState = SystemState::mode_live;
+    //start the timer again
+    liveFeedTimer->start(20);
 }
 
 
