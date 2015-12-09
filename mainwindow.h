@@ -8,6 +8,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "Cameralink.h"
 #include <iostream>
+#include "clickablelabel.h"
 
 
 namespace Ui {
@@ -24,7 +25,8 @@ public:
     enum SystemState {
         mode_shooting = 0,
         mode_live,
-        mode_novid
+        mode_novid,
+        mode_imageView
     };
 
 
@@ -82,6 +84,7 @@ private slots:
     void on_LiveFeedBtnPress();
     void on_ShootingBtnPress();
     void on_ShowNextShotBtnPress();
+    void on_ImagePress();
 
 
 };

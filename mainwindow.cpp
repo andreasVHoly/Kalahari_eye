@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     ///PICTURES
 
     //addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
-   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
 
 
     rightWidget->setLayout(imagePanel);
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     camera.setPort("8080");*/
 
 
-    if (!camera->setUpConnection()){
+    /*if (!camera->setUpConnection()){
         std::cout << "Error connection to camera" << std::endl;
     }
     else{
@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     connect(liveFeedTimer, SIGNAL(timeout()), this, SLOT(updateFeed()));
     liveFeedTimer->start(20);
     //std::cout << "test 2 passed" << std::endl;
-
+*/
 
 
 
@@ -133,9 +133,16 @@ void MainWindow::addImageToPanel(QImage image){
 void MainWindow::addImageFromDrive(std::string path){
     noOfImages++;
     QPixmap image(path.c_str());
-    QLabel * imageLabel = new QLabel();
-    imageLabel->setPixmap(image);
+    ClickableLabel * imageLabel = new ClickableLabel(image, this);
+    //imageLabel->setPixmap(image);
+
+    connect(imageLabel, SIGNAL(clicked()), this, SLOT(on_ImagePress()));
+    //connect(imageLabel, SIGNAL(pressed()), this, SLOT(on_ImagePress(image)));
+
     imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    if (images.empty()){
+        images.reserve(noOfImages);
+    }
     images.push_back(imageLabel);
 }
 
@@ -186,7 +193,20 @@ void MainWindow::on_LiveFeedBtnPress(){
     liveFeedTimer->start(20);
 }
 
+ void MainWindow::on_ImagePress(){
+   // std::cout << QObject::sender()->isWidgetType() << std::endl;
+    if (QObject::sender()->isWidgetType()){
+        const QPixmap * map = qobject_cast<ClickableLabel*>(QObject::sender())->pixmap();
+        QPixmap &temp = const_cast<QPixmap&>(*map);
+        mainImage->setPixmap(temp);
+        mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+    }
+    //std::cout << "image pressed" << std::endl;
+    currentState = SystemState::mode_imageView;
+   // (((ClickableLabel)(QObject::sender())).pixmap());
 
+
+ }
 
 void MainWindow::removeImage(std::string path){
 /*
