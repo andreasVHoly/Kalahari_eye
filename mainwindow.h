@@ -9,6 +9,7 @@
 #include "Cameralink.h"
 #include <iostream>
 #include "clickablelabel.h"
+#include <QKeyEvent>
 
 
 namespace Ui {
@@ -38,6 +39,9 @@ public:
     void addImageToPanel(QImage image);
     void removeImage(std::string path);
     void setImageAmount(int size);
+    bool compareImages();
+    //key press handling
+    void keyPressEvent(QKeyEvent * e);
 
 private:
     Ui::MainWindow *ui;
@@ -50,6 +54,7 @@ private:
     //std::vector<QLabel*> images;
 
     int noOfImages;
+    int threshold = 60;
     andreasvh::CameraLink * camera;
 
     //qimages
@@ -60,6 +65,7 @@ private:
     //mats
     cv::Mat matOriginal;
     cv::Mat matEdited;
+    cv::Mat matPrevious;
 
     //video capture
     cv::VideoCapture videocap;

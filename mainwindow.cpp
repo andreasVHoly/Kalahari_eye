@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     ///PICTURES
 
     //addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
+   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
 
 
     rightWidget->setLayout(imagePanel);
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     camera.setPort("8080");*/
 
 
-    /*if (!camera->setUpConnection()){
+    if (!camera->setUpConnection()){
         std::cout << "Error connection to camera" << std::endl;
     }
     else{
@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     connect(liveFeedTimer, SIGNAL(timeout()), this, SLOT(updateFeed()));
     liveFeedTimer->start(20);
     //std::cout << "test 2 passed" << std::endl;
-*/
+
 
 
 
@@ -99,13 +99,13 @@ void MainWindow::addInButtons(){
     //assign clicking and pressing actions to nessesary slots
     liveFeed = new QPushButton("Live Feed");
     connect(liveFeed, SIGNAL(clicked()), this, SLOT(on_LiveFeedBtnPress()));
-    connect(liveFeed, SIGNAL(pressed()), this, SLOT(on_LiveFeedBtnPress()));
+    //connect(liveFeed, SIGNAL(pressed()), this, SLOT(on_LiveFeedBtnPress()));
     shootMode = new QPushButton("Shooting Mode");
     connect(shootMode, SIGNAL(clicked()), this, SLOT(on_ShootingBtnPress()));
-    connect(shootMode, SIGNAL(pressed()), this, SLOT(on_ShootingBtnPress()));
+    //connect(shootMode, SIGNAL(pressed()), this, SLOT(on_ShootingBtnPress()));
     nextShot = new QPushButton("Show Next Shot");
     connect(nextShot, SIGNAL(clicked()), this, SLOT(on_ShowNextShotBtnPress()));
-    connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
+    //connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
 
 
     mainPanel->addWidget(liveFeed,0,0);
@@ -151,6 +151,12 @@ void MainWindow::updateFeed(){
     //update the main feed
     //simple video update
     videocap.read(matOriginal);
+
+
+    if (currentState != 1){
+        return;
+    }
+
     //if nothing is coming through
     if (matOriginal.empty()){
         return;
@@ -165,10 +171,110 @@ void MainWindow::updateFeed(){
 
 }
 
+bool MainWindow::compareImages(){
+//compare pics
+    std::cout << "compare image method" << std::endl;
+    std::cout <<  matOriginal.rows << "," << matOriginal.cols <<std::endl;
+    std::cout <<  matPrevious.rows << "," << matPrevious.cols <<std::endl;
+    if (matOriginal.rows != matPrevious.rows || matOriginal.cols != matPrevious.cols){
+        std::cout << "image sizes do not match" << std::endl;
+        return false;
+    }
+    matEdited = matOriginal;
+
+    if (matEdited.empty()){
+        return false;
+    }
+
+    std::cout << "compare image prelims passed" << std::endl;
+
+    for (int i = 0; i < matPrevious.rows; i++){
+        for (int j = 0; j < matPrevious.cols; j++){
+
+            int diff = std::abs((int)matPrevious.at<uchar>(i,j) - (int)matOriginal.at<uchar>(i,j));
+
+            if ((int)matPrevious.at<uchar>(i,j) != (int)matOriginal.at<uchar>(i,j)){
+                std::cout << (int)matPrevious.at<uchar>(i,j) << std::endl;
+                std::cout << (int)matOriginal.at<uchar>(i,j) << std::endl;
+            }
+
+            if (diff > threshold){
+                std::cout << "found pixel" << std::endl;
+                matEdited.at<cv::Vec3b>(i,j)[0] = 0;
+                matEdited.at<cv::Vec3b>(i,j)[1] = 0;
+                matEdited.at<cv::Vec3b>(i,j)[2] = 255;
+            }
+
+            if (diff > 0){
+                std::cout << diff << std::endl;
+            }
+
+            //std::cout << (int)image.at<cv::Vec3b>(i,j)[0] << " " << (int)image.at<cv::Vec3b>(i,j)[1] << " " << (int)image.at<cv::Vec3b>(i,j)[2] << ",";
+        }
+
+
+
+    }
+
+    return true;
+
+
+}
+
+void MainWindow::keyPressEvent(QKeyEvent * e){
+    std::cout << "event fire" << std::endl;
+
+    if (e->key() == Qt::Key_Space){
+        std::cout << "space pressed" << std::endl;
+    }
+
+
+   /* if (e->text() == "Space"){
+        std::cout << "space pressed" << std::endl;
+    }*/
+}
+
 
 void MainWindow::on_ShowNextShotBtnPress(){
+    if (currentState != 0){
+        return;
+    }
+
+
 //handle show next button being pressed
+    //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button
+    std::cout << "next shot slot" << std::endl;
+    //we back up the old image
+    matPrevious = matOriginal;
+    if (matPrevious.empty()){
+        return;
+    }
+
+    //we read in a new image
+    videocap.read(matOriginal);
+    //if nothing is coming through
+    if (matOriginal.empty()){
+        return;
+    }
+
+    if (compareImages()){
+        qImgEdited = QImage((uchar*)matEdited.data, matEdited.cols, matEdited.rows, matEdited.step, QImage::Format_RGB888);
+
+        mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+
+        mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+    }
+    else{
+        std::cout << "image compare failed" << std::endl;
+    }
+
+
+
+
 }
+
+
+
 
 void MainWindow::on_ShootingBtnPress(){
 //handle shooting button being pressed
@@ -177,7 +283,7 @@ void MainWindow::on_ShootingBtnPress(){
         return;
     }
     currentState = SystemState::mode_shooting;
-    liveFeedTimer->stop();
+    //liveFeedTimer->stop();
     //std::cout << "shooting mode button pressed" << std::endl;
     addImageToPanel(qImgOriginal);
     //std::cout << "shooting mode button pressed2" << std::endl;
@@ -190,7 +296,7 @@ void MainWindow::on_LiveFeedBtnPress(){
     }
     currentState = SystemState::mode_live;
     //start the timer again
-    liveFeedTimer->start(20);
+    //liveFeedTimer->start(20);
 }
 
  void MainWindow::on_ImagePress(){
