@@ -15,18 +15,19 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     //RIGHT WIDGET
-    //rightWidget = new QWidget(mainWidget);
-    //rightWidget->setStyleSheet("*{background-color:rgb(50,50,50);}");
+    rightWidget = new QWidget(mainWidget);
+    rightWidget->setStyleSheet("*{background-color:rgb(50,50,50);}");
 
 
-    //QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    //QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea = new QScrollArea(mainWidget);
-    scrollArea->setStyleSheet("*{background-color:rgb(50,50,50);}");
+    scrollArea = new QScrollArea();
+    scrollArea->setStyleSheet("*{background-color:rgb(50,100,50);}");
 
+    scrollArea->setWidget(rightWidget);
     scrollArea->setWidgetResizable(true);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    imageList = new QVBoxLayout(rightWidget);
+    //scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    //scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 
 
@@ -68,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     leftWidget->setLayout(mainPanel);
 
     mainLayout->addWidget(leftWidget,0,0);
-    mainLayout->addWidget(scrollArea,0,1);
+    mainLayout->addWidget(rightWidget,0,1);
 
     mainWidget->setLayout(mainLayout);
 
@@ -143,7 +144,8 @@ void MainWindow::addImageToPanel(QImage image){
     QLabel * imageLabel = new QLabel();
     imageLabel->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
     //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
-    scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
+    //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
+    imageList->addWidget(imageLabel,Qt::AlignCenter);
     if (images.empty()){
         images.reserve(noOfImages);
     }
@@ -162,7 +164,8 @@ void MainWindow::addImageFromDrive(std::string path){
     //connect(imageLabel, SIGNAL(pressed()), this, SLOT(on_ImagePress(image)));
 
     //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
-    scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
+    //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
+    imageList->addWidget(imageLabel,Qt::AlignCenter);
     if (images.empty()){
         images.reserve(noOfImages);
     }
@@ -391,7 +394,7 @@ void MainWindow::createActions(){
     //SAVE SESSION ACTION
     saveSessionAction = new QAction(tr("&Save Session"),this);
     saveSessionAction->setShortcut(tr("Ctrl+S"));
-    //connect(saveSessionAction, SIGNAL(triggered()), this, SLOT()));
+    connect(saveSessionAction, SIGNAL(triggered()), this, SLOT(saveSession()));
 
     //NEW SESSION ACTION
     newSessionAction = new QAction(tr("&New Session"),this);
@@ -423,6 +426,43 @@ void MainWindow::createActions(){
 
 }
 
+
+//saves a specific image
+void MainWindow::saveIdivImage(){
+    QString savePath = QFileDialog::getSaveFileName(this,tr("Save File"), "", tr("JPEG (*.jpg *.jpeg);;PNG (*.png)"));
+    //images[i]->pixmap()->save(savePath);
+}
+
+void MainWindow::saveSession(){
+
+
+
+
+
+    //dialog
+    QString savePath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home",  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    //std::cout << savePath.toStdString() << std::endl;
+
+    //std::cout << savePath.toStdString() << std::endl;
+    for (int i = 0; i < noOfImages; i++){
+        QString fullPath = savePath;
+        fullPath.append("/Shot ");
+        fullPath.append(QString::number(i));
+        fullPath.append(".png");
+
+        images[i]->pixmap()->save(fullPath);
+
+    }
+
+
+
+}
+
+
+void MainWindow::newSession(){
+    images.clear();
+    //scrollArea->
+}
 
 void MainWindow::exitApp(){
     QApplication::quit();

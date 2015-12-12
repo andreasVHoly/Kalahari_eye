@@ -102,6 +102,10 @@ private:
     QAction * contactAction;
 
 
+    //scroll area
+    QVBoxLayout * imageList;
+
+
 public slots:
     void updateFeed();
 
@@ -111,6 +115,9 @@ private slots:
     void on_ShowNextShotBtnPress();
     void on_ImagePress();
     void exitApp();
+    void saveSession();
+    void newSession();
+    void saveIdivImage();
 
 
 };
