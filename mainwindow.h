@@ -40,6 +40,8 @@ public:
     void removeImage(std::string path);
     void setImageAmount(int size);
     bool compareImages();
+    void createMenuBar();
+    void createActions();
     //key press handling
     void keyPressEvent(QKeyEvent * e);
 
@@ -84,6 +86,22 @@ private:
     //state
     SystemState currentState;
 
+    //menu bar items
+    QMenu * fileMenu;
+    QMenu * modeMenu;
+    QMenu * helpMenu;
+
+    //menu bar actions
+    QAction * exitAction;
+    QAction * saveSessionAction;
+    QAction * newSessionAction;
+    QAction * shootingModeAction;
+    QAction * liveVideoModeAction;
+    QAction * aboutAction;
+    QAction * tutorialLinkAction;
+    QAction * contactAction;
+
+
 public slots:
     void updateFeed();
 
@@ -92,6 +110,7 @@ private slots:
     void on_ShootingBtnPress();
     void on_ShowNextShotBtnPress();
     void on_ImagePress();
+    void exitApp();
 
 
 };

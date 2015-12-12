@@ -75,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     setCentralWidget(mainWidget);
+    createActions();
+    createMenuBar();
 
 
     /*camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
@@ -353,3 +355,75 @@ MainWindow::~MainWindow()
     delete camera;
 }
 
+
+void MainWindow::createMenuBar(){
+    //FILE MENU
+    fileMenu = new QMenu(tr("&File"),this);
+    fileMenu->addAction(saveSessionAction);
+    fileMenu->addAction(newSessionAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAction);
+
+    //MODE MENU
+    modeMenu = new QMenu(tr("&Mode"),this);
+    modeMenu->addAction(shootingModeAction);
+    modeMenu->addAction(liveVideoModeAction);
+
+    //HELP MENU
+    helpMenu = new QMenu(tr("&Help"),this);
+    helpMenu->addAction(aboutAction);
+    helpMenu->addAction(tutorialLinkAction);
+    helpMenu->addAction(contactAction);
+
+    //add all menus in
+    menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(modeMenu);
+    menuBar()->addMenu(helpMenu);
+
+}
+
+void MainWindow::createActions(){
+    //EXIT ACTION
+    exitAction = new QAction(tr("&Exit"),this);
+    exitAction->setShortcut(tr("Ctrl+Q"));
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(exitApp()));
+
+    //SAVE SESSION ACTION
+    saveSessionAction = new QAction(tr("&Save Session"),this);
+    saveSessionAction->setShortcut(tr("Ctrl+S"));
+    //connect(saveSessionAction, SIGNAL(triggered()), this, SLOT()));
+
+    //NEW SESSION ACTION
+    newSessionAction = new QAction(tr("&New Session"),this);
+    newSessionAction->setShortcut(tr("Ctrl+N"));
+    //connect(newSessionAction, SIGNAL(triggered()), this, SLOT()));
+
+
+    //SHOOT MODE ACTION
+    shootingModeAction = new QAction(tr("&Shooting Mode"),this);
+    connect(shootingModeAction, SIGNAL(triggered()), this, SLOT(on_ShootingBtnPress()));
+
+    //LIVE MODE ACTION
+    liveVideoModeAction = new QAction(tr("&Live Video Mode"),this);
+    connect(liveVideoModeAction, SIGNAL(triggered()), this, SLOT(on_LiveFeedBtnPress()));
+
+    //ABOUT ACTION
+    aboutAction = new QAction(tr("&About"),this);
+    //connect(aboutAction, SIGNAL(triggered()), this, SLOT()));
+
+    //TUT ACTION
+    tutorialLinkAction = new QAction(tr("&Tutorials"),this);
+    //connect(tutorialLinkAction, SIGNAL(triggered()), this, SLOT()));
+
+    //CONTACT ACTION
+    contactAction = new QAction(tr("&Contatc Us"),this);
+    //connect(contactAction, SIGNAL(triggered()), this, SLOT()));
+
+
+
+}
+
+
+void MainWindow::exitApp(){
+    QApplication::quit();
+}
