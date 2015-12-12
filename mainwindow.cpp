@@ -4,6 +4,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow){
     ui->setupUi(this);
+     std::cout << "starting" << std::endl;
 
     images.clear();
    // images.reserve(3);
@@ -11,54 +12,73 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     noOfImages = 0;
     //widgets
     mainWidget = new QWidget(this);
-    rightWidget = new QWidget(mainWidget);
+
+
+    //RIGHT WIDGET
+    //rightWidget = new QWidget(mainWidget);
+    //rightWidget->setStyleSheet("*{background-color:rgb(50,50,50);}");
+
+
+    //QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    //QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea = new QScrollArea(mainWidget);
+    scrollArea->setStyleSheet("*{background-color:rgb(50,50,50);}");
+
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+
+
+
+
+
+
+    //LEFT WIDGET
     leftWidget = new QWidget(mainWidget);
+    leftWidget->setStyleSheet("*{background-color:rgb(100,50,50);}");
+    //set the size of both widgets
+     std::cout << "mid" << std::endl;
+    int height = mainWidget->size().height();
+    int width = mainWidget->size().width();
+    std::cout << "mi2d" << std::endl;
+    //rightWidget->setFixedWidth(width/4);
+    //leftWidget->setFixedWidth(3*(width/4));
+
+    std::cout << "mid" << std::endl;
     mainLayout = new QGridLayout(mainWidget);
-    imagePanel = new QGridLayout(rightWidget);
+    //imagePanel = new QGridLayout(rightWidget);
     mainPanel = new QGridLayout(leftWidget);
     mainImage = new QLabel();
 
     ///BUTTONS
     addInButtons();
 
-    /*QPixmap currentImage("c:\\Users\\SMNM\\Pictures\\Default\\pic.jpg") = ;
-
-
-
-    mainImage->setPixmap(currentImage);
-
-
-    mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);*/
 
 
     ///PICTURES
 
-    //addImage("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
-   // addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\pic.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
 
 
-    rightWidget->setLayout(imagePanel);
+    //rightWidget->setLayout(imagePanel);
     leftWidget->setLayout(mainPanel);
 
     mainLayout->addWidget(leftWidget,0,0);
-    mainLayout->addWidget(rightWidget,0,1);
+    mainLayout->addWidget(scrollArea,0,1);
 
     mainWidget->setLayout(mainLayout);
 
 
-    //imageView->setLayout(imagePanel);
-    //gridLayout->addWidget(imageView,0,1);
+
     setCentralWidget(mainWidget);
 
 
-    // CameraLink(std::string un, std::string p, int IPStart, int IPEnd, std::string port)
-    camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
-    /*camera.setUsername("admin");
-    camera.setPassword("1234");
-    camera.setStartIP(100);
-    camera.setEndIP(150);
-    camera.setPort("8080");*/
+    /*camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
+
 
 
     if (!camera->setUpConnection()){
@@ -85,8 +105,8 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     connect(liveFeedTimer, SIGNAL(timeout()), this, SLOT(updateFeed()));
     liveFeedTimer->start(20);
     //std::cout << "test 2 passed" << std::endl;
-
-
+*/
+     std::cout << "end of method" << std::endl;
 
 
 }
@@ -120,8 +140,8 @@ void MainWindow::addImageToPanel(QImage image){
 
     QLabel * imageLabel = new QLabel();
     imageLabel->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
-    imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
-
+    //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
     if (images.empty()){
         images.reserve(noOfImages);
     }
@@ -139,7 +159,8 @@ void MainWindow::addImageFromDrive(std::string path){
     connect(imageLabel, SIGNAL(clicked()), this, SLOT(on_ImagePress()));
     //connect(imageLabel, SIGNAL(pressed()), this, SLOT(on_ImagePress(image)));
 
-    imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
+    scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
     if (images.empty()){
         images.reserve(noOfImages);
     }

@@ -51,6 +51,7 @@ private:
     QGridLayout * mainLayout;
     QGridLayout * imagePanel;
     QGridLayout * mainPanel;
+    QScrollArea * scrollArea;
     //std::vector<QLabel*> images;
 
     int noOfImages;
