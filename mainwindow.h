@@ -44,6 +44,7 @@ public:
     void createMenuBar();
     void createActions();
     void connectToCamera();
+    void setSensitivity();
     //key press handling
     void keyPressEvent(QKeyEvent * e);
 
@@ -59,7 +60,7 @@ private:
     //std::vector<QLabel*> images;
 
     int noOfImages;
-    int threshold = 0;
+    int threshold = 60;
     andreasvh::CameraLink * camera;
 
     //qimages
@@ -111,6 +112,9 @@ private:
     QColor * redColor;
 
 
+    QLineEdit * textBox;
+
+
 public slots:
     void updateFeed();
 
@@ -123,6 +127,7 @@ private slots:
     void saveSession();
     void newSession();
     void saveIdivImage();
+
 
 
 };

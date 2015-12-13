@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     ui->setupUi(this);
     std::cout << "starting" << std::endl;
 
-    redColor = new QColor(255,0,0);
+    redColor = new QColor(0,0,255);
 
 
 
@@ -144,10 +144,15 @@ void MainWindow::addInButtons(){
     connect(nextShot, SIGNAL(clicked()), this, SLOT(on_ShowNextShotBtnPress()));
     //connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
 
+    textBox = new QLineEdit();
+    textBox->setText(QString::number(threshold));
+
 
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
-    mainPanel->addWidget(nextShot,2,0,1,2);
+    //mainPanel->addWidget(nextShot,2,0,1,2);
+    mainPanel->addWidget(nextShot,2,1);
+    mainPanel->addWidget(textBox,2,0);
 }
 
 
@@ -220,34 +225,34 @@ bool MainWindow::compareMatImages(){
         std::cout << "image sizes do not match" << std::endl;
         return false;
     }
-    matEdited = matOriginal;
+    matOriginal.copyTo(matEdited);
 
     if (matEdited.empty()){
         return false;
     }
 
     std::cout << "compare image prelims passed" << std::endl;
-
+    std::cout << "Using send of " << threshold << std::endl;
     for (int i = 0; i < matPrevious.rows; i++){
         for (int j = 0; j < matPrevious.cols; j++){
 
             int diff = std::abs((int)matPrevious.at<uchar>(i,j) - (int)matOriginal.at<uchar>(i,j));
 
-            if ((int)matPrevious.at<uchar>(i,j) != (int)matOriginal.at<uchar>(i,j)){
+            /*if ((int)matPrevious.at<uchar>(i,j) != (int)matOriginal.at<uchar>(i,j)){
                 std::cout << (int)matPrevious.at<uchar>(i,j) << std::endl;
                 std::cout << (int)matOriginal.at<uchar>(i,j) << std::endl;
-            }
+            }*/
 
             if (diff > threshold){
-                std::cout << "found pixel" << std::endl;
+                //std::cout << "found pixel" << std::endl;
                 matEdited.at<cv::Vec3b>(i,j)[0] = 0;
                 matEdited.at<cv::Vec3b>(i,j)[1] = 0;
                 matEdited.at<cv::Vec3b>(i,j)[2] = 255;
             }
 
-            if (diff > 0){
+            /*if (diff > 0){
                 std::cout << diff << std::endl;
-            }
+            }*/
 
             //std::cout << (int)image.at<cv::Vec3b>(i,j)[0] << " " << (int)image.at<cv::Vec3b>(i,j)[1] << " " << (int)image.at<cv::Vec3b>(i,j)[2] << ",";
         }
@@ -255,7 +260,7 @@ bool MainWindow::compareMatImages(){
 
 
     }
-
+    std::cout << "compare done" << std::endl;
     return true;
 
 
@@ -269,7 +274,7 @@ bool MainWindow::compareQImages(){
 
 
     std::cout << qImgOriginal.height() << " , " << qImgOriginal.width() << std::endl;
-
+    std::cout << "Using send of " << threshold << std::endl;
 
     for (int i = 0; i < qImgOriginal.height(); i++){
         for (int j = 0; j < qImgOriginal.width(); j++){
@@ -277,12 +282,13 @@ bool MainWindow::compareQImages(){
 
             QRgb col = qImgOriginal.pixel(j,i);
             int totalOriginal = QColor(col).green() + QColor(col).blue() + QColor(col).red();
+            totalOriginal = totalOriginal/3;
 
 
             QRgb col2 = qImgPrevious.pixel(j,i);
             int totalOld = QColor(col2).green() + QColor(col2).blue() + QColor(col2).red();
-
-
+            totalOld = totalOld/3;
+            //std::cout << totalOriginal << "," << totalOld << std::endl;
 
 
             int diff = std::abs(totalOld - totalOriginal);
@@ -299,7 +305,7 @@ bool MainWindow::compareQImages(){
 
 
     }
-
+    std::cout << "compare done" << std::endl;
     return true;
 
    // mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
@@ -326,12 +332,12 @@ void MainWindow::on_ShowNextShotBtnPress(){
         return;
     }
 
-
-//handle show next button being pressed
+    setSensitivity();
+    //handle show next button being pressed
     //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button
     std::cout << "next shot slot" << std::endl;
     //we back up the old image
-    matPrevious = matOriginal;
+    matOriginal.copyTo(matPrevious);
     if (matPrevious.empty()){
         return;
     }
@@ -542,4 +548,9 @@ void MainWindow::newSession(){
 
 void MainWindow::exitApp(){
     QApplication::quit();
+}
+
+
+void MainWindow::setSensitivity(){
+    threshold = textBox->text().toInt();
 }
