@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     ui->setupUi(this);
     std::cout << "starting" << std::endl;
 
-    redColor = new QColor(0,0,255);
+    redColor = new QColor(255,0,0);
 
 
 
@@ -173,6 +173,8 @@ void MainWindow::addImageToPanel(QImage image){
 }
 
 
+
+
 void MainWindow::addImageFromDrive(std::string path){
     noOfImages++;
     QPixmap image(path.c_str());
@@ -267,6 +269,10 @@ bool MainWindow::compareMatImages(){
 }
 
 
+bool MainWindow::compareScanLine(){
+
+}
+
 bool MainWindow::compareQImages(){
     qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
     qImgPrevious = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
@@ -281,18 +287,27 @@ bool MainWindow::compareQImages(){
 
 
             QRgb col = qImgOriginal.pixel(j,i);
-            int totalOriginal = QColor(col).green() + QColor(col).blue() + QColor(col).red();
-            totalOriginal = totalOriginal/3;
+            QColor c1 = QColor(col);
+            int totalOriginal = c1.green() + c1.blue() + c1.red() + c1.black() + c1.cyan() + c1.magenta() + c1.yellow();
+            //totalOriginal = totalOriginal;
 
 
             QRgb col2 = qImgPrevious.pixel(j,i);
-            int totalOld = QColor(col2).green() + QColor(col2).blue() + QColor(col2).red();
-            totalOld = totalOld/3;
+
+            QColor c2 = QColor(col2);
+            int totalOld = c2.green() + c2.blue() + c2.red() + c2.black() + c2.cyan() + c2.magenta() + c2.yellow();
+            //totalOld = totalOld;
             //std::cout << totalOriginal << "," << totalOld << std::endl;
 
 
             int diff = std::abs(totalOld - totalOriginal);
             //std::cout << diff << std::endl;
+
+            /*if (qImgPrevious.pixel(j,i) != qImgOriginal.pixel(j,i)){
+                //std::cout << "found pixel" << std::endl;
+                qImgEdited.setPixel(j,i,QRgb(redColor));
+            }*/
+
 
             if (diff > threshold){
                 //std::cout << "found pixel" << std::endl;
@@ -332,6 +347,9 @@ void MainWindow::on_ShowNextShotBtnPress(){
         return;
     }
 
+
+
+    addImageToPanel(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888));
     setSensitivity();
     //handle show next button being pressed
     //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button

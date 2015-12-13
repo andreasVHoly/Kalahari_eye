@@ -41,6 +41,7 @@ public:
     void setImageAmount(int size);
     bool compareMatImages();
     bool compareQImages();
+    bool compareScanLine();
     void createMenuBar();
     void createActions();
     void connectToCamera();
