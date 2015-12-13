@@ -39,9 +39,11 @@ public:
     void addImageToPanel(QImage image);
     void removeImage(std::string path);
     void setImageAmount(int size);
-    bool compareImages();
+    bool compareMatImages();
+    bool compareQImages();
     void createMenuBar();
     void createActions();
+    void connectToCamera();
     //key press handling
     void keyPressEvent(QKeyEvent * e);
 
@@ -57,12 +59,13 @@ private:
     //std::vector<QLabel*> images;
 
     int noOfImages;
-    int threshold = 60;
+    int threshold = 0;
     andreasvh::CameraLink * camera;
 
     //qimages
     QImage qImgOriginal;
     QImage qImgEdited;
+    QImage qImgPrevious;
     std::vector<QLabel*> images;
     QLabel * mainImage;
     //mats
@@ -104,6 +107,8 @@ private:
 
     //scroll area
     QVBoxLayout * imageList;
+
+    QColor * redColor;
 
 
 public slots:

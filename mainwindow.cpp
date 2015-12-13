@@ -4,7 +4,11 @@
 
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow){
     ui->setupUi(this);
-     std::cout << "starting" << std::endl;
+    std::cout << "starting" << std::endl;
+
+    redColor = new QColor(255,0,0);
+
+
 
     images.clear();
    // images.reserve(3);
@@ -20,14 +24,16 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     scrollArea = new QScrollArea();
-    scrollArea->setStyleSheet("*{background-color:rgb(50,100,50);}");
+    imageList = new QVBoxLayout(scrollArea);
+    scrollArea->setStyleSheet("*{background-color:rgb(100,100,50);}");
 
-    scrollArea->setWidget(rightWidget);
+    scrollArea->setWidget(imageList->widget());
     scrollArea->setWidgetResizable(true);
 
-    imageList = new QVBoxLayout(rightWidget);
-    //scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    //scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setAlignment(Qt::AlignCenter);
 
 
 
@@ -48,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
     std::cout << "mid" << std::endl;
     mainLayout = new QGridLayout(mainWidget);
-    //imagePanel = new QGridLayout(rightWidget);
+    imagePanel = new QGridLayout(rightWidget);
     mainPanel = new QGridLayout(leftWidget);
     mainImage = new QLabel();
 
@@ -59,13 +65,17 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
     ///PICTURES
 
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
+    /*addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
     addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\pic.jpg");
     addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
     addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
+    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");*/
 
-
-    //rightWidget->setLayout(imagePanel);
+    imagePanel->addWidget(scrollArea);
+    rightWidget->setLayout(imagePanel);
     leftWidget->setLayout(mainPanel);
 
     mainLayout->addWidget(leftWidget,0,0);
@@ -74,15 +84,25 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     mainWidget->setLayout(mainLayout);
 
 
-
     setCentralWidget(mainWidget);
     createActions();
     createMenuBar();
 
 
-    /*camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
+    bool debugCamStart = true;
+    if (debugCamStart){
+        connectToCamera();
+    }
 
 
+     std::cout << "end of method" << std::endl;
+
+
+}
+
+
+void MainWindow::connectToCamera(){
+    camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
 
     if (!camera->setUpConnection()){
         std::cout << "Error connection to camera" << std::endl;
@@ -107,13 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     liveFeedTimer = new QTimer(this);
     connect(liveFeedTimer, SIGNAL(timeout()), this, SLOT(updateFeed()));
     liveFeedTimer->start(20);
-    //std::cout << "test 2 passed" << std::endl;
-*/
-     std::cout << "end of method" << std::endl;
-
-
 }
-
 
 
 
@@ -145,7 +159,7 @@ void MainWindow::addImageToPanel(QImage image){
     imageLabel->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
     //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
     //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
-    imageList->addWidget(imageLabel,Qt::AlignCenter);
+    imageList->addWidget(imageLabel,Qt::AlignRight);
     if (images.empty()){
         images.reserve(noOfImages);
     }
@@ -165,7 +179,7 @@ void MainWindow::addImageFromDrive(std::string path){
 
     //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
     //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
-    imageList->addWidget(imageLabel,Qt::AlignCenter);
+    imageList->addWidget(imageLabel,Qt::AlignRight);
     if (images.empty()){
         images.reserve(noOfImages);
     }
@@ -197,7 +211,7 @@ void MainWindow::updateFeed(){
 
 }
 
-bool MainWindow::compareImages(){
+bool MainWindow::compareMatImages(){
 //compare pics
     std::cout << "compare image method" << std::endl;
     std::cout <<  matOriginal.rows << "," << matOriginal.cols <<std::endl;
@@ -247,6 +261,52 @@ bool MainWindow::compareImages(){
 
 }
 
+
+bool MainWindow::compareQImages(){
+    qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+    qImgPrevious = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
+    qImgEdited = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+
+
+    std::cout << qImgOriginal.height() << " , " << qImgOriginal.width() << std::endl;
+
+
+    for (int i = 0; i < qImgOriginal.height(); i++){
+        for (int j = 0; j < qImgOriginal.width(); j++){
+
+
+            QRgb col = qImgOriginal.pixel(j,i);
+            int totalOriginal = QColor(col).green() + QColor(col).blue() + QColor(col).red();
+
+
+            QRgb col2 = qImgPrevious.pixel(j,i);
+            int totalOld = QColor(col2).green() + QColor(col2).blue() + QColor(col2).red();
+
+
+
+
+            int diff = std::abs(totalOld - totalOriginal);
+            //std::cout << diff << std::endl;
+
+            if (diff > threshold){
+                //std::cout << "found pixel" << std::endl;
+                qImgEdited.setPixel(j,i,QRgb(redColor));
+            }
+
+
+        }
+
+
+
+    }
+
+    return true;
+
+   // mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+
+   // mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+}
+
 void MainWindow::keyPressEvent(QKeyEvent * e){
     std::cout << "event fire" << std::endl;
 
@@ -283,17 +343,32 @@ void MainWindow::on_ShowNextShotBtnPress(){
         return;
     }
 
-    if (compareImages()){
-        qImgEdited = QImage((uchar*)matEdited.data, matEdited.cols, matEdited.rows, matEdited.step, QImage::Format_RGB888);
+    bool useMat = false;
+    if (useMat){
 
-        mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+        if (compareMatImages()){
+            qImgEdited = QImage((uchar*)matEdited.data, matEdited.cols, matEdited.rows, matEdited.step, QImage::Format_RGB888);
 
-        mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+            mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+
+            mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+        }
+        else{
+            std::cout << "image compare failed" << std::endl;
+        }
     }
     else{
-        std::cout << "image compare failed" << std::endl;
-    }
+        if (compareQImages()){
 
+            mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+
+            mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+        }
+        else{
+            std::cout << "image compare failed" << std::endl;
+        }
+
+    }
 
 
 
@@ -461,6 +536,7 @@ void MainWindow::saveSession(){
 
 void MainWindow::newSession(){
     images.clear();
+    connectToCamera();
     //scrollArea->
 }
 
