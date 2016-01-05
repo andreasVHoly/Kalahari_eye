@@ -41,7 +41,6 @@ public:
     void setImageAmount(int size);
     bool compareMatImages();
     bool compareQImages();
-    bool compareScanLine();
     void createMenuBar();
     void createActions();
     void connectToCamera();
@@ -70,6 +69,10 @@ private:
     QImage qImgPrevious;
     std::vector<QLabel*> images;
     QLabel * mainImage;
+
+    QLabel * picture1;
+    QLabel * picture2;
+    QLabel * picture3;
     //mats
     cv::Mat matOriginal;
     cv::Mat matEdited;
@@ -114,6 +117,8 @@ private:
 
 
     QLineEdit * textBox;
+
+
 
 
 public slots:

@@ -57,6 +57,9 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
     imagePanel = new QGridLayout(rightWidget);
     mainPanel = new QGridLayout(leftWidget);
     mainImage = new QLabel();
+    picture1 = new QLabel();
+    picture2 = new QLabel();
+    picture3 = new QLabel();
 
     ///BUTTONS
     addInButtons();
@@ -102,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
 void MainWindow::connectToCamera(){
-    camera = new andreasvh::CameraLink("admin", "1234", 101, 150, "8080");
+    camera = new andreasvh::CameraLink("admin", "1234", 100, 150, "8080");
 
     if (!camera->setUpConnection()){
         std::cout << "Error connection to camera" << std::endl;
@@ -151,8 +154,8 @@ void MainWindow::addInButtons(){
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
     //mainPanel->addWidget(nextShot,2,0,1,2);
-    mainPanel->addWidget(nextShot,2,1);
-    mainPanel->addWidget(textBox,2,0);
+    mainPanel->addWidget(nextShot,3,1);
+    mainPanel->addWidget(textBox,3,0);
 }
 
 
@@ -197,12 +200,15 @@ void MainWindow::addImageFromDrive(std::string path){
 void MainWindow::updateFeed(){
     //update the main feed
     //simple video update
-    videocap.read(matOriginal);
 
 
-    if (currentState != 1){
+    cv::Mat tempMat;
+    if (currentState != SystemState::mode_live){
+        videocap.read(tempMat);
         return;
     }
+
+    videocap.read(matOriginal);
 
     //if nothing is coming through
     if (matOriginal.empty()){
@@ -227,7 +233,10 @@ bool MainWindow::compareMatImages(){
         std::cout << "image sizes do not match" << std::endl;
         return false;
     }
-    matOriginal.copyTo(matEdited);
+
+    matEdited = matOriginal.clone();
+
+
 
     if (matEdited.empty()){
         return false;
@@ -263,20 +272,37 @@ bool MainWindow::compareMatImages(){
 
     }
     std::cout << "compare done" << std::endl;
+
+    QImage temp1 = QImage((uchar*)matEdited.data, matEdited.cols, matEdited.rows, matEdited.step, QImage::Format_RGB888);
+    picture3->setPixmap(QPixmap::fromImage(temp1.rgbSwapped()));
+    mainPanel->addWidget(picture3,1,2,Qt::AlignCenter);
     return true;
 
 
 }
 
 
-bool MainWindow::compareScanLine(){
-
-}
 
 bool MainWindow::compareQImages(){
-    qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
-    qImgPrevious = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
+    //qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+    //qImgPrevious = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
+
+
+    qImgPrevious = qImgOriginal.copy();
+
+    //qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
     qImgEdited = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+
+    picture1->setPixmap(QPixmap::fromImage(qImgPrevious.rgbSwapped()));
+    mainPanel->addWidget(picture1,1,0,Qt::AlignCenter);
+
+    picture2->setPixmap(QPixmap::fromImage(qImgOriginal.rgbSwapped()));
+    mainPanel->addWidget(picture2,1,1,Qt::AlignCenter);
+
+    picture3->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
+    mainPanel->addWidget(picture3,1,2,Qt::AlignCenter);
+
+
 
 
     std::cout << qImgOriginal.height() << " , " << qImgOriginal.width() << std::endl;
@@ -328,6 +354,7 @@ bool MainWindow::compareQImages(){
    // mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
 }
 
+
 void MainWindow::keyPressEvent(QKeyEvent * e){
     std::cout << "event fire" << std::endl;
 
@@ -342,6 +369,7 @@ void MainWindow::keyPressEvent(QKeyEvent * e){
 }
 
 
+
 void MainWindow::on_ShowNextShotBtnPress(){
     if (currentState != 0){
         return;
@@ -349,13 +377,14 @@ void MainWindow::on_ShowNextShotBtnPress(){
 
 
 
-    addImageToPanel(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888));
+    //addImageToPanel(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888));
     setSensitivity();
     //handle show next button being pressed
     //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button
     std::cout << "next shot slot" << std::endl;
     //we back up the old image
-    matOriginal.copyTo(matPrevious);
+
+    matPrevious = matOriginal.clone();
     if (matPrevious.empty()){
         return;
     }
@@ -367,15 +396,41 @@ void MainWindow::on_ShowNextShotBtnPress(){
         return;
     }
 
-    bool useMat = false;
+
+
+
+
+
+
+
+    bool useMat = true;
     if (useMat){
+
+        //to check image comaprison
+        //PREVIOUS IMAGE
+        bool compareCheck = true;
+        if (compareCheck){
+            QImage temp0 = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
+            picture1->setPixmap(QPixmap::fromImage(temp0.rgbSwapped()));
+            mainPanel->addWidget(picture1,1,0,Qt::AlignCenter);
+
+
+            //ORIGINAL IMAGE (*NEW)
+            QImage temp1 = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+            picture2->setPixmap(QPixmap::fromImage(temp1.rgbSwapped()));
+            mainPanel->addWidget(picture2,1,1,Qt::AlignCenter);
+        }
+
+
+
+
 
         if (compareMatImages()){
             qImgEdited = QImage((uchar*)matEdited.data, matEdited.cols, matEdited.rows, matEdited.step, QImage::Format_RGB888);
 
             mainImage->setPixmap(QPixmap::fromImage(qImgEdited.rgbSwapped()));
 
-            mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
+            mainPanel->addWidget(mainImage,2,0,1,2,Qt::AlignCenter);
         }
         else{
             std::cout << "image compare failed" << std::endl;
