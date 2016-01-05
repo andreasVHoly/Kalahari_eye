@@ -403,7 +403,7 @@ void MainWindow::on_ShowNextShotBtnPress(){
 
 
 
-    bool useMat = true;
+    bool useMat = false;
     if (useMat){
 
         //to check image comaprison
