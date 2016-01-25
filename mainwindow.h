@@ -44,7 +44,6 @@ public:
     void createMenuBar();
     void createActions();
     void connectToCamera();
-    void setSensitivity();
     //key press handling
     void keyPressEvent(QKeyEvent * e);
 

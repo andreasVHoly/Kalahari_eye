@@ -2,30 +2,28 @@
 #include "ui_mainwindow.h"
 
 
+//THis version of the program is intended to not compare shots but just feature the next shot mode and live mode with being able to view the shots
+
+
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow){
     ui->setupUi(this);
-    std::cout << "starting" << std::endl;
-
-    redColor = new QColor(255,0,0);
-
-
+    std::cout << "Program Starting..." << std::endl;
 
     images.clear();
-   // images.reserve(3);
     currentState = SystemState::mode_novid;
     noOfImages = 0;
     //widgets
     mainWidget = new QWidget(this);
 
 
-    //RIGHT WIDGET
+    //RIGHT WIDGET, holds the seperate images
     rightWidget = new QWidget(mainWidget);
-    rightWidget->setStyleSheet("*{background-color:rgb(50,50,50);}");
+    rightWidget->setStyleSheet("*{background-color:rgb(0,0,0);}");
 
 
     scrollArea = new QScrollArea();
     imageList = new QVBoxLayout(scrollArea);
-    scrollArea->setStyleSheet("*{background-color:rgb(100,100,50);}");
+    scrollArea->setStyleSheet("*{background-color:rgb(0,0,0);}");
 
     scrollArea->setWidget(imageList->widget());
     scrollArea->setWidgetResizable(true);
@@ -41,42 +39,22 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
 
-    //LEFT WIDGET
+    //LEFT WIDGET,intended to hold the main view and the buttons
     leftWidget = new QWidget(mainWidget);
     leftWidget->setStyleSheet("*{background-color:rgb(100,50,50);}");
-    //set the size of both widgets
-     std::cout << "mid" << std::endl;
-    int height = mainWidget->size().height();
-    int width = mainWidget->size().width();
-    std::cout << "mi2d" << std::endl;
-    //rightWidget->setFixedWidth(width/4);
-    //leftWidget->setFixedWidth(3*(width/4));
 
-    std::cout << "mid" << std::endl;
+
+    //the differant layouts for the parts of the screen
     mainLayout = new QGridLayout(mainWidget);
     imagePanel = new QGridLayout(rightWidget);
     mainPanel = new QGridLayout(leftWidget);
     mainImage = new QLabel();
-    picture1 = new QLabel();
-    picture2 = new QLabel();
-    picture3 = new QLabel();
+
 
     ///BUTTONS
     addInButtons();
 
-
-
-    ///PICTURES
-
-    /*addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\beach.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\pic.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\room.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");
-    addImageFromDrive("c:\\Users\\SMNM\\Pictures\\Default\\fire.jpg");*/
-
+    //setting up the widgets and their layouts
     imagePanel->addWidget(scrollArea);
     rightWidget->setLayout(imagePanel);
     leftWidget->setLayout(mainPanel);
@@ -88,17 +66,18 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 
     setCentralWidget(mainWidget);
+    //creating the actions for different elements
     createActions();
     createMenuBar();
 
-
+    //connecting to the camera
     bool debugCamStart = true;
     if (debugCamStart){
         connectToCamera();
     }
 
 
-     std::cout << "end of method" << std::endl;
+     std::cout << "end main..." << std::endl;
 
 
 }
@@ -116,10 +95,6 @@ void MainWindow::connectToCamera(){
 
     }
 
-    //std::cout << "test 1 passed" << std::endl;
-
-
-
     if(!videocap.open(camera->getConnectionAddress())) {
         std::cout << "Error opening video stream for " << std::endl;
         //TODO need to display this on the screen that there is no video feed & show default black screen
@@ -136,59 +111,53 @@ void MainWindow::connectToCamera(){
 
 void MainWindow::addInButtons(){
 
-    //assign clicking and pressing actions to nessesary slots
+    //assign clicking and pressing actions to nessesary slots for each button
     liveFeed = new QPushButton("Live Feed");
-    connect(liveFeed, SIGNAL(clicked()), this, SLOT(on_LiveFeedBtnPress()));
-    //connect(liveFeed, SIGNAL(pressed()), this, SLOT(on_LiveFeedBtnPress()));
+    connect(liveFeed, SIGNAL(pressed()), this, SLOT(on_LiveFeedBtnPress()));
     shootMode = new QPushButton("Shooting Mode");
-    connect(shootMode, SIGNAL(clicked()), this, SLOT(on_ShootingBtnPress()));
-    //connect(shootMode, SIGNAL(pressed()), this, SLOT(on_ShootingBtnPress()));
+    connect(shootMode, SIGNAL(pressed()), this, SLOT(on_ShootingBtnPress()));
     nextShot = new QPushButton("Show Next Shot");
-    connect(nextShot, SIGNAL(clicked()), this, SLOT(on_ShowNextShotBtnPress()));
-    //connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
-
-    textBox = new QLineEdit();
-    textBox->setText(QString::number(threshold));
+    connect(nextShot, SIGNAL(pressed()), this, SLOT(on_ShowNextShotBtnPress()));
 
 
+    //add in the buttons
     mainPanel->addWidget(liveFeed,0,0);
     mainPanel->addWidget(shootMode,0,1);
-    //mainPanel->addWidget(nextShot,2,0,1,2);
-    mainPanel->addWidget(nextShot,3,1);
-    mainPanel->addWidget(textBox,3,0);
+    mainPanel->addWidget(nextShot,2,0,1,2);
+
 }
 
-
+///
+/// \brief MainWindow::addImageToPanel
+/// \param image
+///
 void MainWindow::addImageToPanel(QImage image){
-   // std::cout << "start of method" << std::endl;
     noOfImages++;
 
     QLabel * imageLabel = new QLabel();
     imageLabel->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
-    //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
-    //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
     imageList->addWidget(imageLabel,Qt::AlignRight);
     if (images.empty()){
         images.reserve(noOfImages);
     }
     images.push_back(imageLabel);
-   // std::cout << "end of method" << std::endl;
+
 }
 
 
 
-
+///
+/// \brief MainWindow::addImageFromDrive
+/// adding an image from the drive, more used in testing
+/// \param path
+///
 void MainWindow::addImageFromDrive(std::string path){
     noOfImages++;
     QPixmap image(path.c_str());
     ClickableLabel * imageLabel = new ClickableLabel(image, this);
-    //imageLabel->setPixmap(image);
 
-    connect(imageLabel, SIGNAL(clicked()), this, SLOT(on_ImagePress()));
-    //connect(imageLabel, SIGNAL(pressed()), this, SLOT(on_ImagePress(image)));
 
-    //imagePanel->addWidget(imageLabel,noOfImages,0,Qt::AlignCenter);
-    //scrollArea->addScrollBarWidget(imageLabel,Qt::AlignCenter);
+    connect(imageLabel, SIGNAL(pressed()), this, SLOT(on_ImagePress()));
     imageList->addWidget(imageLabel,Qt::AlignRight);
     if (images.empty()){
         images.reserve(noOfImages);
@@ -196,18 +165,25 @@ void MainWindow::addImageFromDrive(std::string path){
     images.push_back(imageLabel);
 }
 
-
+///
+/// \brief MainWindow::updateFeed
+/// updates the display if currently in live mode and otherwise just refereshes the incoming stream
+/// this is called as often as possible
+///
 void MainWindow::updateFeed(){
     //update the main feed
     //simple video update
 
 
     cv::Mat tempMat;
+    //we want to simply update the stream if we are not in live mode, thus returning here
     if (currentState != SystemState::mode_live){
         videocap.read(tempMat);
         return;
     }
 
+    //if we are in live mode we would have made it until here
+    //we read in the new data to matOriginal
     videocap.read(matOriginal);
 
     //if nothing is coming through
@@ -215,7 +191,7 @@ void MainWindow::updateFeed(){
         return;
     }
 
-
+    //we make a new qimage out of it and assign it to the main image
     qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
 
     mainImage->setPixmap(QPixmap::fromImage(qImgOriginal.rgbSwapped()));
@@ -224,6 +200,11 @@ void MainWindow::updateFeed(){
 
 }
 
+///
+/// \brief MainWindow::compareMatImages
+
+/// \return
+///
 bool MainWindow::compareMatImages(){
 //compare pics
     std::cout << "compare image method" << std::endl;
@@ -282,7 +263,11 @@ bool MainWindow::compareMatImages(){
 }
 
 
-
+///
+/// \brief MainWindow::compareQImages
+/// NOT USED IN THIS VERSION
+/// \return
+///
 bool MainWindow::compareQImages(){
     //qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
     //qImgPrevious = QImage((uchar*)matPrevious.data, matPrevious.cols, matPrevious.rows, matPrevious.step, QImage::Format_RGB888);
@@ -354,34 +339,30 @@ bool MainWindow::compareQImages(){
    // mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
 }
 
-
+///
+/// \brief MainWindow::keyPressEvent
+/// HANDLES key press events if we need any
+/// \param e
+///
 void MainWindow::keyPressEvent(QKeyEvent * e){
-    std::cout << "event fire" << std::endl;
 
-    if (e->key() == Qt::Key_Space){
-        std::cout << "space pressed" << std::endl;
-    }
-
-
-   /* if (e->text() == "Space"){
-        std::cout << "space pressed" << std::endl;
-    }*/
 }
 
 
-
+///
+/// \brief MainWindow::on_ShowNextShotBtnPress
+/// slot for the next button being pressed
+///
 void MainWindow::on_ShowNextShotBtnPress(){
+    //if we are not in shooting mode we dont want this button to react
     if (currentState != 0){
         return;
     }
 
+    addImageToPanel(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888));
 
-
-    //addImageToPanel(QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888));
-    setSensitivity();
     //handle show next button being pressed
-    //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button
-    std::cout << "next shot slot" << std::endl;
+    //first handle keyboard events (optional access), needs to be done in the update loop, otherwise this will be called by pressing the button ----- THIS IS ONLY FOR DESKTOP VERSION?
     //we back up the old image
 
     matPrevious = matOriginal.clone();
@@ -396,14 +377,15 @@ void MainWindow::on_ShowNextShotBtnPress(){
         return;
     }
 
+    qImgOriginal = QImage((uchar*)matOriginal.data, matOriginal.cols, matOriginal.rows, matOriginal.step, QImage::Format_RGB888);
+
+    mainImage->setPixmap(QPixmap::fromImage(qImgOriginal.rgbSwapped()));
+
+    mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
 
 
-
-
-
-
-
-    bool useMat = false;
+    //WE NO LONGER COMPARE IN THIS VERSION THUS THIS IS COMMENTED OUT
+   /* bool useMat = false;
     if (useMat){
 
         //to check image comaprison
@@ -448,14 +430,17 @@ void MainWindow::on_ShowNextShotBtnPress(){
         }
 
     }
-
+*/
 
 
 }
 
 
 
-
+///
+/// \brief MainWindow::on_ShootingBtnPress
+/// shooting mode response
+///
 void MainWindow::on_ShootingBtnPress(){
 //handle shooting button being pressed
     //already in shooting mode
@@ -463,42 +448,43 @@ void MainWindow::on_ShootingBtnPress(){
         return;
     }
     currentState = SystemState::mode_shooting;
-    //liveFeedTimer->stop();
-    //std::cout << "shooting mode button pressed" << std::endl;
     addImageToPanel(qImgOriginal);
-    //std::cout << "shooting mode button pressed2" << std::endl;
 }
 
+///
+/// \brief MainWindow::on_LiveFeedBtnPress
+/// live mode response
+///
 void MainWindow::on_LiveFeedBtnPress(){
 //handle live feed button being pressed
     if (currentState == 1){
         return;
     }
     currentState = SystemState::mode_live;
-    //start the timer again
-    //liveFeedTimer->start(20);
+
 }
 
- void MainWindow::on_ImagePress(){
-   // std::cout << QObject::sender()->isWidgetType() << std::endl;
+///
+/// \brief MainWindow::on_ImagePress
+/// response to pressing on an image
+///
+void MainWindow::on_ImagePress(){
+
     if (QObject::sender()->isWidgetType()){
         const QPixmap * map = qobject_cast<ClickableLabel*>(QObject::sender())->pixmap();
         QPixmap &temp = const_cast<QPixmap&>(*map);
         mainImage->setPixmap(temp);
         mainPanel->addWidget(mainImage,1,0,1,2,Qt::AlignCenter);
     }
-    //std::cout << "image pressed" << std::endl;
+
     currentState = SystemState::mode_imageView;
-   // (((ClickableLabel)(QObject::sender())).pixmap());
+
 
 
  }
 
 void MainWindow::removeImage(std::string path){
-/*
-    for (int i = 0; i < images.size(); i++){
 
-    }*/
 }
 
 void MainWindow::setImageAmount(int size){
@@ -512,7 +498,10 @@ MainWindow::~MainWindow()
     delete camera;
 }
 
-
+///
+/// \brief MainWindow::createMenuBar
+/// populates the bar of the window, is this needed for Android?
+///
 void MainWindow::createMenuBar(){
     //FILE MENU
     fileMenu = new QMenu(tr("&File"),this);
@@ -539,6 +528,10 @@ void MainWindow::createMenuBar(){
 
 }
 
+///
+/// \brief MainWindow::createActions
+/// creates the actions for the menu bar items
+///
 void MainWindow::createActions(){
     //EXIT ACTION
     exitAction = new QAction(tr("&Exit"),this);
@@ -587,11 +580,13 @@ void MainWindow::saveIdivImage(){
     //images[i]->pixmap()->save(savePath);
 }
 
+
+///
+/// \brief MainWindow::saveSession
+/// saves all images that were taken
+/// beta stage
+///
 void MainWindow::saveSession(){
-
-
-
-
 
     //dialog
     QString savePath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home",  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -605,18 +600,17 @@ void MainWindow::saveSession(){
         fullPath.append(".png");
 
         images[i]->pixmap()->save(fullPath);
-
     }
-
-
 
 }
 
-
+///
+/// \brief MainWindow::newSession
+/// resets the session
+///
 void MainWindow::newSession(){
     images.clear();
     connectToCamera();
-    //scrollArea->
 }
 
 void MainWindow::exitApp(){
@@ -624,6 +618,4 @@ void MainWindow::exitApp(){
 }
 
 
-void MainWindow::setSensitivity(){
-    threshold = textBox->text().toInt();
-}
+
